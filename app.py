@@ -20,39 +20,35 @@ st.divider()
 
 df = pd.read_csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/0e7a9b0a5d22642a06d3d5b9bcbad9890c8ee534/iris.csv")
 
+# Sidebar filters
 with st.sidebar:
     # Input filter options
-    bill_length_slider = st.slider(
-        "Bill Length (mm)",
-        min(df["bill_length_mm"]),
-        max(df["bill_length_mm"]),
-    )
-    species_filter = st.selectbox(
-        "Species",
-        df["species"].unique(),
-        index=None
-    )
-    islands_filter = st.multiselect("Island", df["island"].unique())
+    sepal_length_slider = st.slider("Sepal Length (cm)", min(df["sepal_length"]), max(df["sepal_length"]))
+    sepal_width_slider = st.slider("Sepal Width (cm)", min(df["sepal_width"]), max(df["sepal_width"]))
+    petal_length_slider = st.slider("Petal Length (cm)", min(df["petal_length"]), max(df["petal_length"]))
+    petal_width_slider = st.slider("Petal Width (cm)", min(df["petal_width"]), max(df["petal_width"]))
 
 # Filter data
-if islands_filter:
-    df = df[df["island"].isin(islands_filter)]
-if species_filter:
-    df = df[df["species"] == species_filter]
-df = df[df["bill_length_mm"] > bill_length_slider]
+df_filtered = df[
+    (df["sepal_length"] >= sepal_length_slider) &
+    (df["sepal_width"] >= sepal_width_slider) &
+    (df["petal_length"] >= petal_length_slider) &
+    (df["petal_width"] >= petal_width_slider)
+]
 
-with st.expander("RAW Data"):
-    st.write(df)
+# Display filtered data
+with st.expander("Filtered Data"):
+    st.write(df_filtered)
 
-fig = px.histogram(
-    df, 
-    x="bill_length_mm"
-)
-st.plotly_chart(fig)
+# Visualization
+st.subheader("Distribution of Sepal Length and Width")
+fig_sepal = px.scatter(df_filtered, x="sepal_length", y="sepal_width", color="species", title="Sepal Measurements")
+st.plotly_chart(fig_sepal)
 
-fig2 = px.scatter(
-    df, 
-    x="bill_length_mm", 
-    y="bill_depth_mm"
-)
-st.plotly_chart(fig2)
+st.subheader("Distribution of Petal Length and Width")
+fig_petal = px.scatter(df_filtered, x="petal_length", y="petal_width", color="species", title="Petal Measurements")
+st.plotly_chart(fig_petal)
+
+# Classifier
+X = df_filtered[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']]
+y = df_filtered['species']
