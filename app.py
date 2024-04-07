@@ -4,11 +4,11 @@ import plotly.express as px
 
 st.set_page_config(
     page_title="Iris Flower Explorer", 
-    page_icon="🐧", 
+    page_icon="🌷", 
     layout="centered",
 )
 
-st.title("Iris Flower Explorer")
+st.title("🌷 Iris Flower Explore 🌷")
 
 st.markdown("""
 ## Observations
@@ -22,19 +22,25 @@ df = pd.read_csv("https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7
 
 # Sidebar filters
 with st.sidebar:
-    # Input filter options
-    sepal_length_slider = st.slider("Sepal Length (cm)", min(df["sepal_length"]), max(df["sepal_length"]))
-    sepal_width_slider = st.slider("Sepal Width (cm)", min(df["sepal_width"]), max(df["sepal_width"]))
-    petal_length_slider = st.slider("Petal Length (cm)", min(df["petal_length"]), max(df["petal_length"]))
-    petal_width_slider = st.slider("Petal Width (cm)", min(df["petal_width"]), max(df["petal_width"]))
+    st.markdown("## Filters")
+    species = st.selectbox("Species", options=["All"] + list(df['species'].unique()))
+    sepal_length_slider = st.slider("Sepal Length (cm)", min(df["sepal_length"]), max(df["sepal_length"]), (min(df["sepal_length"]), max(df["sepal_length"])))
+    sepal_width_slider = st.slider("Sepal Width (cm)", min(df["sepal_width"]), max(df["sepal_width"]), (min(df["sepal_width"]), max(df["sepal_width"])))
+    petal_length_slider = st.slider("Petal Length (cm)", min(df["petal_length"]), max(df["petal_length"]), (min(df["petal_length"]), max(df["petal_length"])))
+    petal_width_slider = st.slider("Petal Width (cm)", min(df["petal_width"]), max(df["petal_width"]), (min(df["petal_width"]), max(df["petal_width"])))
+
 
 # Filter data
 df_filtered = df[
-    (df["sepal_length"] >= sepal_length_slider) &
-    (df["sepal_width"] >= sepal_width_slider) &
-    (df["petal_length"] >= petal_length_slider) &
-    (df["petal_width"] >= petal_width_slider)
+    (df["sepal_length"] >= sepal_length_slider[0]) & (df["sepal_length"] <= sepal_length_slider[1]) &
+    (df["sepal_width"] >= sepal_width_slider[0]) & (df["sepal_width"] <= sepal_width_slider[1]) &
+    (df["petal_length"] >= petal_length_slider[0]) & (df["petal_length"] <= petal_length_slider[1]) &
+    (df["petal_width"] >= petal_width_slider[0]) & (df["petal_width"] <= petal_width_slider[1])
 ]
+
+if species != "All":
+    df_filtered = df_filtered[df_filtered['species'] == species]
+
 
 # Display filtered data
 with st.expander("Filtered Data"):
